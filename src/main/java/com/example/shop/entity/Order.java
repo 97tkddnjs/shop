@@ -20,6 +20,8 @@ public class Order {
     @Column(name = "order_id")
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "member_id")
     private Member member;
 
     private LocalDateTime orderDate;    //주문일
@@ -27,7 +29,8 @@ public class Order {
     @Enumerated(EnumType.ORDINAL)
     private OrderStatus orderStatus;    //주문 상태
 
-    @OneToMany(mappedBy = "order")
+    // 영속성을 부모와 같이 따라가도록 만든다.
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
 
     private LocalDateTime regTime;
