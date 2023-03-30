@@ -2,6 +2,7 @@ package com.example.shop.entity;
 
 import com.example.shop.repository.ItemRepository;
 import com.example.shop.repository.MemberRepository;
+import com.example.shop.repository.OrderItemRepository;
 import com.example.shop.repository.OrderRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,9 @@ class OrderTest {
 
     @Autowired
     MemberRepository memberRepository;
+
+    @Autowired
+    OrderItemRepository orderItemRepository;
 
     @PersistenceContext
     EntityManager em;
@@ -98,6 +102,21 @@ class OrderTest {
         Order order = this.createOrder();
         order.getOrderItems().remove(0);
         em.flush();
+    }
+
+    @Test
+    @DisplayName("지연 로딩 테스트")
+    public void lazyLoadingTest() {
+        Order order = this.createOrder();
+        Long orderItemId = order.getOrderItems().get(0).getId();// order에 orderitems 변수에서 하나의 orderItems를 빼고
+        // Id 를 얻어 옴
+        em.flush(); // 영속성 컨택스트에서 DB로 모두 데이터 집어넣어주고
+        em.clear(); // 영속성 컨택스트 비워지게 만들고
+
+        OrderItem orderItem = orderItemRepository.findById(orderItemId)
+                .orElseThrow(EntityNotFoundException::new);
+        System.out.println("orderItem = " + orderItem.getOrder().getClass());
+
     }
 
 }
